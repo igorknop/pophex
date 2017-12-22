@@ -1,3 +1,8 @@
+import {Cube} from './cube.js'
+import {Hex} from './hex.js'
+
+const SIZE = 48
+
 class Game {
   constructor (canvas) {
     this.canvas = canvas
@@ -5,6 +10,15 @@ class Game {
     this.width = canvas.width
     this.height = canvas.height
     this.setupControls()
+    this.hexes = [
+      new Hex(0, 0),
+      new Hex(1, 0),
+      new Hex(0, 1),
+      new Hex(-1, 1),
+      new Hex(-1, 0),
+      new Hex(0, -1),
+      new Hex(1, -1)
+    ]
   }
 
   clearScreen () {
@@ -38,22 +52,107 @@ class Game {
       that.handleClick(x, y)
     }, false)
   }
-  handleClick (x, y) {
+  drawCrossChair (x, y) {
     this.ctx.strokeStyle = 'white'
     this.ctx.lineWidth = 1
     this.ctx.beginPath()
-    this.ctx.moveTo(x, y - 10)
-    this.ctx.lineTo(x, y + 10)
-    this.ctx.moveTo(x - 10, y)
-    this.ctx.lineTo(x + 10, y)
-    this.ctx.closePath()
-    this.ctx.stroke()
-    this.ctx.beginPath()
-    this.ctx.fillStyle = 'white'
-    this.ctx.rect(x - 5, y - 5, 10, 10)
+    this.ctx.moveTo(x, y - 5)
+    this.ctx.lineTo(x, y + 5)
+    this.ctx.moveTo(x - 5, y)
+    this.ctx.lineTo(x + 5, y)
     this.ctx.closePath()
     this.ctx.stroke()
   }
-}
+  handleClick (x, y) {
+    this.drawCrossChair(x, y)
+    console.log(this.hexRound(this.pixelToHex(x - this.width / 2, y - this.height / 2, SIZE)))
+  }
+  cubeToAxial (cube) {
+    var q = cube.x
+    var r = cube.z
+    return new Hex(q, r)
+  }
 
+  axialToCube (hex) {
+    var x = hex.q
+    var z = hex.r
+    var y = -x - z
+    return new Cube(x, y, z)
+  }
+
+  cubeToOddr (cube) {
+    var col = cube.x + (cube.z - (cube.z & 1)) / 2
+    var row = cube.z
+    return new Hex(col, row)
+  }
+
+  oddrToCube (hex) {
+    var x = hex.col - (hex.row - (hex.row & 1)) / 2
+    var z = hex.row
+    var y = -x - z
+    return new Cube(x, y, z)
+  }
+
+  getHexesAsCubes () {
+    var cubes = []
+    for (var hex of this.hexes) {
+      cubes.push(this.axialToCube(hex))
+    }
+    return cubes
+  }
+
+  drawHexes () {
+    let cubes = this.getHexesAsPoints()
+    this.ctx.save()
+    this.ctx.translate(this.width / 2, this.height / 2)
+    for (let c of cubes) {
+      console.log(c)
+      this.drawCrossChair(c.x, c.y)
+    }
+    this.ctx.restore()
+  }
+
+  hexToPixel (hex, size) {
+    let x = size * Math.sqrt(3) * (hex.q + hex.r / 2)
+    let y = size * 3 / 2 * hex.r
+    return {x, y}
+  }
+
+  pixelToHex (x, y, size) {
+    let q = (x * Math.sqrt(3) / 3 - y / 3) / size
+    let r = y * 2 / 3 / size
+  //  return hex_round(Hex(q, r))
+    return new Hex(q, r)
+  }
+  getHexesAsPoints () {
+    var points = []
+    for (var hex of this.hexes) {
+      points.push(this.hexToPixel(hex, SIZE))
+    }
+    return points
+  }
+
+  cubeRound (cube) {
+    var rx = Math.round(cube.x)
+    var ry = Math.round(cube.y)
+    var rz = Math.round(cube.z)
+
+    var xDiff = Math.abs(rx - cube.x)
+    var yDiff = Math.abs(ry - cube.y)
+    var zDiff = Math.abs(rz - cube.z)
+
+    if (xDiff > yDiff && xDiff > zDiff) {
+      rx = -ry - rz
+    } else if (yDiff > zDiff) {
+      ry = -rx - rz
+    } else {
+      rz = -rx - ry
+    }
+    return new Cube(rx, ry, rz)
+  }
+
+  hexRound (hex) {
+    return this.cubeToAxial(this.cubeRound(this.axialToCube(hex)))
+  }
+}
 export {Game}

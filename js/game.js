@@ -1,5 +1,3 @@
-export {Game}
-
 class Game {
   constructor (canvas) {
     this.canvas = canvas
@@ -57,3 +55,5 @@ class Game {
     this.ctx.stroke()
   }
 }
+
+export {Game}

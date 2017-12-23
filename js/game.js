@@ -65,7 +65,13 @@ class Game {
   }
   handleClick (x, y) {
     this.drawCrossChair(x, y)
-    console.log(this.hexRound(this.pixelToHex(x - this.width / 2, y - this.height / 2, SIZE)))
+    let tx = x - this.width / 2
+    let ty = y - this.height / 2
+    let hex = this.hexRound(this.pixelToHex(tx, ty, SIZE))
+    console.log(hex)
+    let phex = this.hexToPixel(hex, SIZE)
+    console.log(phex)
+    this.drawHex(phex.x, phex.y, SIZE)
   }
   cubeToAxial (cube) {
     var q = cube.x
@@ -153,6 +159,29 @@ class Game {
 
   hexRound (hex) {
     return this.cubeToAxial(this.cubeRound(this.axialToCube(hex)))
+  }
+
+  drawHex (x, y, size) {
+    this.ctx.save()
+    this.ctx.translate(this.width / 2, this.height / 2)
+    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)'
+    this.ctx.beginPath()
+    for (var i = 0; i < 6; i++) {
+      let angleDeg = 60 * i + 30
+      let angleRad = Math.PI / 180 * angleDeg
+      let px = x + size * Math.cos(angleRad)
+      let py = y + size * Math.sin(angleRad)
+      if (i === 0) {
+        this.ctx.moveTo(px, py)
+      } else {
+        this.ctx.lineTo(px, py)
+      }
+    }
+    this.ctx.closePath()
+    this.ctx.fill()
+    this.ctx.stroke()
+    this.ctx.restore()
   }
 }
 export {Game}

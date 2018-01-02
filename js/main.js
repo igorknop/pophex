@@ -1,5 +1,5 @@
 
-import {Game} from './Game.js'
+import {Game} from './game.js'
 
 function setup () {
   var canvas = document.querySelector('canvas')

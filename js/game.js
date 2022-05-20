@@ -30,10 +30,8 @@ class Game {
   setupControls() {
     var that = this;
     window.addEventListener("keydown", function (e) {
-      console.log(e.code);
     });
     window.addEventListener("keyup", function (e) {
-      console.log(e.code);
     });
     window.addEventListener(
       "click",
@@ -115,7 +113,6 @@ class Game {
   drawHexes() {
     let cubes = this.getHexesAsPoints();
     for (let c of cubes) {
-      console.log(c);
       this.ctx.save();
       this.ctx.translate(this.width / 2, this.height / 2);
       this.drawCrossChair(c.x, c.y);
@@ -188,6 +185,16 @@ class Game {
     }
     this.ctx.closePath();
     this.ctx.fill();
+    this.ctx.stroke();
+    this.ctx.restore();
+  }
+
+  drawLimits() {
+    this.ctx.save();
+    this.ctx.strokeStyle = "rgba(100, 100, 255, 1.0)";
+    this.ctx.lineWidth = 6;
+    this.ctx.setLineDash([15, 5]);
+    this.ctx.rect(0, 0, this.width, this.height);
     this.ctx.stroke();
     this.ctx.restore();
   }

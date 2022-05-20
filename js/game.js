@@ -29,10 +29,10 @@ class Game {
   setupControls () {
     var that = this
     window.addEventListener('keydown', function (e) {
-      console.log(e.keyCode)
+      console.log(e.code)
     })
     window.addEventListener('keyup', function (e) {
-      console.log(e.keyCode)
+      console.log(e.code)
     })
     window.addEventListener('click', function (e) {
       var element = that.canvas

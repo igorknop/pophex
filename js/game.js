@@ -5,6 +5,7 @@ const SIZE = 48
 
 class Game {
   constructor (canvas) {
+    this.size = SIZE;
     this.canvas = canvas
     this.ctx = canvas.getContext('2d')
     this.width = canvas.width
@@ -109,13 +110,16 @@ class Game {
 
   drawHexes () {
     let cubes = this.getHexesAsPoints()
-    this.ctx.save()
-    this.ctx.translate(this.width / 2, this.height / 2)
     for (let c of cubes) {
       console.log(c)
+      this.ctx.save()
+      this.ctx.translate(this.width / 2, this.height / 2)
       this.drawCrossChair(c.x, c.y)
+      this.ctx.restore()
+      let hex = this.hexRound(this.pixelToHex(c.x, c.y, SIZE))
+      let phex = this.hexToPixel(hex, SIZE)
+      this.drawHex(phex.x, phex.y, SIZE)
     }
-    this.ctx.restore()
   }
 
   hexToPixel (hex, size) {
